@@ -9,7 +9,7 @@ const collectionComments = mongoConnection.getCollection(
   COLLECTION_COMMENTS_NAME
 );
 
-collectionComments
+const query1 = collectionComments
   .aggregate([
     {
       $lookup: {
@@ -51,11 +51,9 @@ collectionComments
       },
     },
   ])
-  .toArray()
-  .then((data) => console.log(data))
-  .catch((error) => console.error(error));
-
-collectionMovies
+  .toArray();
+  
+const query2 = collectionMovies
   .aggregate([
     {
       $facet: {
@@ -104,9 +102,10 @@ collectionMovies
       },
     },
   ])
-  .toArray()
-  .then((results) => {
-    console.log("Comedies from 2010 with above-average rating:");
-    results.forEach((movie) => console.log(movie.title));
-  })
-  .catch((error) => console.error("An error occurred:", error));
+  .toArray();
+
+  Promise.all([query1, query2]).then(
+    data => {
+      data.forEach((res, index) => console.log("query" + (index + 1) + "\n", res));
+      mongoConnection.closeConnection();
+    });
